@@ -47,5 +47,5 @@ The frontend bypasses standard vertical templates in favor of a clean, enterpris
 ## 📁 Project Structure
 * `generate_data.py`: The data simulator utilizing real agricultural biology formulas to build the dataset.
 * `train_model.py`: The training pipeline that isolates features, evaluates regression coefficients, and exports the model brain.
-* `plot_results.py`: A visualization script using Matplotlib to map model accuracy (Actual vs. Predicted) and chart feature weights.
+* `plot.py`: A visualization script using Matplotlib to map model accuracy (Actual vs. Predicted) and chart feature weights.
 * `app.py`: The production web application featuring live API integration and the wide-layout dashboard.
