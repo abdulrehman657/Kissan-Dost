@@ -1,0 +1,1404 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kisaan Dost — Smart Agriculture AI</title>
+    <meta
+      name="description"
+      content="Kisaan Dost — AI-powered yield optimization console for farmers in Pakistan."
+    />
+
+    <!-- Trained model data is injected here by app.py at render time -->
+    <script>// __INJECT_MODEL_DATA__</script>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Manrope', 'system-ui', 'sans-serif'],
+              serif: ['"Instrument Serif"', 'Georgia', 'serif'],
+            },
+            colors: {
+              background: '#08120d',
+              foreground: '#eaf4ee',
+              'muted-foreground': '#8ba699',
+              border: 'rgba(120, 180, 150, 0.12)',
+              secondary: 'rgba(140, 200, 170, 0.10)',
+              'primary-foreground': '#04120a',
+              emerald: '#2E7D32',
+              'emerald-bright': '#4ade80',
+            },
+            borderRadius: {
+              '3xl': '1.5rem',
+            },
+          },
+        },
+      };
+    </script>
+
+    <style>
+      body {
+        background-color: #08120d;
+        color: #eaf4ee;
+        font-family: 'Manrope', system-ui, sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      .font-serif {
+        font-family: 'Instrument Serif', Georgia, serif;
+      }
+
+      /* Glassmorphism */
+      .glass {
+        background: linear-gradient(
+          160deg,
+          rgba(46, 125, 50, 0.08),
+          rgba(255, 255, 255, 0.02)
+        );
+        border: 1px solid rgba(120, 180, 150, 0.12);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35),
+          inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      }
+
+      .glass-strong {
+        background: linear-gradient(
+          160deg,
+          rgba(46, 125, 50, 0.14),
+          rgba(255, 255, 255, 0.03)
+        );
+        border: 1px solid rgba(120, 180, 150, 0.16);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        box-shadow: 0 12px 48px rgba(0, 0, 0, 0.4),
+          inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      }
+
+      .bg-emerald {
+        background-color: #2e7d32;
+      }
+      .text-emerald-bright {
+        color: #4ade80;
+      }
+
+      /* Range slider styling */
+      input[type='range'] {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 100%;
+        height: 8px;
+        border-radius: 9999px;
+        background: rgba(140, 200, 170, 0.14);
+        outline: none;
+      }
+      input[type='range']::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: linear-gradient(145deg, #4ade80, #2e7d32);
+        cursor: pointer;
+        border: 3px solid #08120d;
+        box-shadow: 0 0 18px rgba(74, 222, 128, 0.6);
+        transition: transform 0.15s ease;
+      }
+      input[type='range']::-webkit-slider-thumb:hover {
+        transform: scale(1.15);
+      }
+      input[type='range']::-moz-range-thumb {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: linear-gradient(145deg, #4ade80, #2e7d32);
+        cursor: pointer;
+        border: 3px solid #08120d;
+        box-shadow: 0 0 18px rgba(74, 222, 128, 0.6);
+      }
+
+      /* Custom select */
+      select {
+        appearance: none;
+        -webkit-appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%234ade80' stroke-width='2' viewBox='0 0 24 24'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 0.9rem center;
+      }
+      select option {
+        background: #0b1b13;
+        color: #eaf4ee;
+      }
+
+      /* Animations */
+      @keyframes rise {
+        from {
+          opacity: 0;
+          transform: translateY(14px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .animate-rise {
+        animation: rise 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+      }
+
+      @keyframes float-glow {
+        0%,
+        100% {
+          transform: scale(1);
+          opacity: 0.8;
+        }
+        50% {
+          transform: scale(1.08);
+          opacity: 1;
+        }
+      }
+      .animate-float-glow {
+        animation: float-glow 4s ease-in-out infinite;
+      }
+
+      @keyframes ping {
+        75%,
+        100% {
+          transform: scale(2);
+          opacity: 0;
+        }
+      }
+      .animate-ping {
+        animation: ping 1.4s cubic-bezier(0, 0, 0.2, 1) infinite;
+      }
+
+      .fill-bar {
+        transition: width 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      .card-hover {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+      .card-hover:hover {
+        transform: translateY(-3px);
+      }
+    </style>
+  </head>
+
+  <body class="min-h-screen">
+    <div class="relative min-h-screen overflow-hidden">
+      <!-- ambient background -->
+      <div
+        class="pointer-events-none fixed inset-0 -z-10"
+        aria-hidden="true"
+        style="
+          background: radial-gradient(
+              1200px 600px at 85% -5%,
+              rgba(46, 125, 50, 0.22),
+              transparent 60%
+            ),
+            radial-gradient(
+              900px 500px at 5% 105%,
+              rgba(52, 180, 120, 0.16),
+              transparent 55%
+            );
+        "
+      ></div>
+
+      <div
+        class="mx-auto flex max-w-[1500px] flex-col gap-6 p-4 lg:flex-row lg:p-6"
+      >
+        <!-- ============ SIDEBAR ============ -->
+        <aside
+          class="glass flex w-full shrink-0 flex-col gap-6 rounded-3xl p-6 lg:w-80"
+        >
+          <!-- brand -->
+          <div class="flex items-center gap-3">
+            <div
+              class="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald"
+              style="box-shadow: 0 0 24px rgba(74, 222, 128, 0.55)"
+            >
+              <svg
+                class="h-6 w-6 text-primary-foreground"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M7 20h10" />
+                <path d="M10 20c5.5-2.5.8-6.4 3-10" />
+                <path
+                  d="M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5.8z"
+                />
+                <path
+                  d="M14.1 6a7 7 0 0 0-1.1 4c1.9-.1 3.3-.6 4.3-1.4 1-1 1.6-2.3 1.7-4.6-2.7.1-4 1-4.9 2z"
+                />
+              </svg>
+            </div>
+            <div>
+              <h1 class="font-serif text-xl leading-none text-foreground">
+                Kisaan Dost
+              </h1>
+              <p class="text-xs tracking-wide text-muted-foreground">
+                Smart Agriculture AI
+              </p>
+            </div>
+          </div>
+
+          <div class="h-px w-full bg-border"></div>
+
+          <!-- regional profile -->
+          <div>
+            <h2
+              class="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground"
+            >
+              <svg
+                class="h-3.5 w-3.5 text-emerald-bright"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"
+                />
+                <circle cx="12" cy="10" r="3" />
+              </svg>
+              Regional Profile
+            </h2>
+            <label
+              class="mb-1.5 block text-sm font-medium text-foreground/80"
+              for="district"
+              >District</label
+            >
+            <select
+              id="district"
+              class="glass-strong w-full rounded-xl px-4 py-3 text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-emerald-bright/50"
+            >
+              <option value="Multan">Multan</option>
+              <option value="Faisalabad" selected>Faisalabad</option>
+              <option value="Sargodha">Sargodha</option>
+              <option value="Sukkur">Sukkur</option>
+            </select>
+          </div>
+
+          <!-- profile stats -->
+          <div class="grid grid-cols-2 gap-3" id="profileStats">
+            <!-- stat chips injected by JS -->
+          </div>
+
+          <!-- fertility bar -->
+          <div class="glass-strong rounded-2xl p-4">
+            <div class="mb-2 flex items-center justify-between">
+              <span
+                class="flex items-center gap-2 text-sm font-medium text-foreground/80"
+              >
+                <svg
+                  class="h-4 w-4 text-emerald-bright"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <circle cx="12" cy="12" r="4" />
+                  <path d="M12 2v2" />
+                  <path d="M12 20v2" />
+                  <path d="m4.93 4.93 1.41 1.41" />
+                  <path d="m17.66 17.66 1.41 1.41" />
+                  <path d="M2 12h2" />
+                  <path d="M20 12h2" />
+                  <path d="m6.34 17.66-1.41 1.41" />
+                  <path d="m19.07 4.93-1.41 1.41" />
+                </svg>
+                Land Fertility
+              </span>
+              <span
+                class="font-mono text-sm text-emerald-bright"
+                id="fertilityPct"
+                >91%</span
+              >
+            </div>
+            <div
+              class="h-2 w-full overflow-hidden rounded-full bg-secondary"
+            >
+              <div
+                id="fertilityBar"
+                class="fill-bar h-full rounded-full"
+                style="
+                  width: 91%;
+                  background: linear-gradient(90deg, #2e7d32, #4ade80);
+                "
+              ></div>
+            </div>
+          </div>
+
+          <div
+            class="mt-auto flex items-center gap-3 rounded-2xl p-4"
+            style="background: rgba(46, 125, 50, 0.1)"
+          >
+            <svg
+              class="h-5 w-5 shrink-0 text-emerald-bright"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M20 17.58A5 5 0 0 0 18 8h-1.26A8 8 0 1 0 4 16.25"
+              />
+              <path d="M8 19v1" />
+              <path d="M8 14v1" />
+              <path d="M16 19v1" />
+              <path d="M16 14v1" />
+              <path d="M12 21v1" />
+              <path d="M12 16v1" />
+            </svg>
+            <p class="text-xs leading-relaxed text-foreground/70">
+              Live advisory synced with Punjab &amp; Sindh agri-met stations.
+            </p>
+          </div>
+        </aside>
+
+        <!-- ============ MAIN ============ -->
+        <main class="flex flex-1 flex-col gap-6">
+          <!-- header -->
+          <header
+            class="glass flex flex-col justify-between gap-3 rounded-3xl px-6 py-5 sm:flex-row sm:items-center"
+          >
+            <div>
+              <div class="flex items-center gap-2 text-emerald-bright">
+                <svg
+                  class="h-4 w-4"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path
+                    d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"
+                  />
+                  <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" />
+                </svg>
+                <span
+                  class="text-xs font-semibold uppercase tracking-[0.2em]"
+                  >Yield Optimization Console</span
+                >
+              </div>
+              <h1
+                class="mt-1 font-serif text-3xl text-foreground text-balance"
+              >
+                Predict &amp; maximize your harvest
+              </h1>
+            </div>
+            <div
+              class="flex items-center gap-2 rounded-2xl px-4 py-2.5"
+              style="background: rgba(46, 125, 50, 0.12)"
+            >
+              <svg
+                class="h-4 w-4 text-emerald-bright"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .962 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.962 0z"
+                />
+              </svg>
+              <span class="text-sm font-medium text-foreground/80">
+                AI live in <span id="headerDistrict">Faisalabad</span>
+              </span>
+            </div>
+          </header>
+
+          <!-- input panel -->
+          <section class="glass rounded-3xl p-6 lg:p-7">
+            <div class="mb-6 flex items-center justify-between">
+              <div>
+                <h2 class="font-serif text-2xl text-foreground">Field Inputs</h2>
+                <p class="text-sm text-muted-foreground">
+                  Tune your resources — the forecast updates live.
+                </p>
+              </div>
+              <span
+                class="hidden rounded-full px-3 py-1 text-xs font-medium text-emerald-bright sm:block"
+                style="background: rgba(46, 125, 50, 0.12)"
+                >Season 2026</span
+              >
+            </div>
+
+            <div class="grid grid-cols-1 gap-x-8 gap-y-6 md:grid-cols-2">
+              <!-- Land Size -->
+              <div>
+                <div class="mb-2 flex items-center justify-between">
+                  <label
+                    class="flex items-center gap-2 text-sm font-medium text-foreground/80"
+                    for="landSize"
+                  >
+                    <svg
+                      class="h-4 w-4 text-emerald-bright"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path
+                        d="M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.41 2.41 0 0 1 0-3.4l2.6-2.6a2.41 2.41 0 0 1 3.4 0Z"
+                      />
+                      <path d="m14.5 12.5 2-2" />
+                      <path d="m11.5 9.5 2-2" />
+                      <path d="m8.5 6.5 2-2" />
+                      <path d="m17.5 15.5 2-2" />
+                    </svg>
+                    Land Size
+                  </label>
+                  <span class="font-mono text-sm text-emerald-bright"
+                    ><span id="landSizeVal">12</span> acre</span
+                  >
+                </div>
+                <input
+                  type="range"
+                  id="landSize"
+                  min="1"
+                  max="25"
+                  step="1"
+                  value="12"
+                />
+              </div>
+
+              <!-- Urea Bags -->
+              <div>
+                <div class="mb-2 flex items-center justify-between">
+                  <label
+                    class="flex items-center gap-2 text-sm font-medium text-foreground/80"
+                    for="ureaBags"
+                  >
+                    <svg
+                      class="h-4 w-4 text-emerald-bright"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path
+                        d="M16.5 9.4 7.55 4.24"
+                      />
+                      <path
+                        d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"
+                      />
+                      <path d="m3.3 7 8.7 5 8.7-5" />
+                      <path d="M12 22V12" />
+                    </svg>
+                    Urea (per acre)
+                  </label>
+                  <span class="font-mono text-sm text-emerald-bright"
+                    ><span id="ureaBagsVal">3</span> bags/acre</span
+                  >
+                </div>
+                <input
+                  type="range"
+                  id="ureaBags"
+                  min="0"
+                  max="5"
+                  step="1"
+                  value="3"
+                />
+              </div>
+
+              <!-- DAP Bags -->
+              <div>
+                <div class="mb-2 flex items-center justify-between">
+                  <label
+                    class="flex items-center gap-2 text-sm font-medium text-foreground/80"
+                    for="dapBags"
+                  >
+                    <svg
+                      class="h-4 w-4 text-emerald-bright"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path
+                        d="M12 2 2 7l10 5 10-5-10-5Z"
+                      />
+                      <path d="m2 17 10 5 10-5" />
+                      <path d="m2 12 10 5 10-5" />
+                    </svg>
+                    DAP (per acre)
+                  </label>
+                  <span class="font-mono text-sm text-emerald-bright"
+                    ><span id="dapBagsVal">2</span> bags/acre</span
+                  >
+                </div>
+                <input
+                  type="range"
+                  id="dapBags"
+                  min="0"
+                  max="3"
+                  step="1"
+                  value="2"
+                />
+              </div>
+
+              <!-- Seed Type -->
+              <div class="flex items-end">
+                <div class="w-full">
+                  <label
+                    class="mb-2 flex items-center gap-2 text-sm font-medium text-foreground/80"
+                    for="seedType"
+                  >
+                    <svg
+                      class="h-4 w-4 text-emerald-bright"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path d="M2 22 16 8" />
+                      <path
+                        d="M3.47 12.53 5 11l1.53 1.53a3.5 3.5 0 0 1 0 4.94L5 19l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z"
+                      />
+                      <path
+                        d="M7.47 8.53 9 7l1.53 1.53a3.5 3.5 0 0 1 0 4.94L9 15l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z"
+                      />
+                      <path
+                        d="M11.47 4.53 13 3l1.53 1.53a3.5 3.5 0 0 1 0 4.94L13 11l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z"
+                      />
+                      <path
+                        d="M20 2h2v2a4 4 0 0 1-4 4h-2V6a4 4 0 0 1 4-4Z"
+                      />
+                    </svg>
+                    Seed Type
+                  </label>
+                  <select
+                    id="seedType"
+                    class="glass-strong w-full rounded-xl px-4 py-3 text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-emerald-bright/50"
+                  >
+                    <option value="0" selected>Standard Seed</option>
+                    <option value="1">Certified / Branded Seed</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Water Source -->
+              <div class="md:col-span-2">
+                <label
+                  class="mb-2 flex items-center gap-2 text-sm font-medium text-foreground/80"
+                  for="waterSource"
+                >
+                  <svg
+                    class="h-4 w-4 text-emerald-bright"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path
+                      d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"
+                    />
+                  </svg>
+                  Water Source
+                </label>
+                <select
+                  id="waterSource"
+                  class="glass-strong w-full rounded-xl px-4 py-3 text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-emerald-bright/50"
+                >
+                  <option value="0">Rain-fed</option>
+                  <option value="1" selected>Canal</option>
+                  <option value="2">Tubewell</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Advanced: Soil & Climate -->
+            <div class="mt-6">
+              <button
+                type="button"
+                id="advancedToggle"
+                class="flex w-full items-center justify-between rounded-xl px-4 py-3 text-sm font-medium text-foreground/80 transition-colors hover:text-foreground"
+                style="background: rgba(46, 125, 50, 0.08)"
+              >
+                <span class="flex items-center gap-2">
+                  <svg
+                    class="h-4 w-4 text-emerald-bright"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <circle cx="12" cy="12" r="3" />
+                    <path
+                      d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"
+                    />
+                  </svg>
+                  Soil &amp; Climate Conditions
+                  <span
+                    class="rounded-full px-2 py-0.5 text-[11px] font-medium text-emerald-bright"
+                    style="background: rgba(46, 125, 50, 0.15)"
+                    >Advanced</span
+                  >
+                </span>
+                <svg
+                  id="advancedChevron"
+                  class="h-4 w-4 shrink-0 text-muted-foreground transition-transform"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="m6 9 6 6 6-6" />
+                </svg>
+              </button>
+
+              <p class="mt-2 text-xs leading-relaxed text-muted-foreground">
+                These reflect your field's real soil &amp; weather conditions and feed
+                directly into the prediction model. Picking a District above fills in
+                typical regional starting values — adjust any of them to match your
+                actual field.
+              </p>
+
+              <div
+                id="advancedPanel"
+                class="mt-4 hidden grid-cols-1 gap-x-8 gap-y-6 md:grid-cols-2"
+              >
+                <!-- soil/climate sliders injected by JS -->
+              </div>
+            </div>
+          </section>
+
+          <!-- forecast panel -->
+          <section class="flex flex-col gap-6">
+            <!-- meter card -->
+            <div
+              class="glass-strong relative overflow-hidden rounded-3xl p-6 lg:p-8"
+            >
+              <div class="mb-2 flex items-center gap-2">
+                <svg
+                  class="h-4 w-4 text-emerald-bright"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="m12 14 4-4" />
+                  <path d="M3.34 19a10 10 0 1 1 17.32 0" />
+                </svg>
+                <h2
+                  class="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground"
+                >
+                  Yield Forecast
+                </h2>
+              </div>
+
+              <div
+                class="flex flex-col items-center gap-8 lg:flex-row lg:justify-around"
+              >
+                <!-- YIELD METER -->
+                <div class="relative flex items-center justify-center">
+                  <div
+                    class="animate-float-glow absolute inset-0 rounded-full blur-3xl"
+                    aria-hidden="true"
+                    style="
+                      background: radial-gradient(
+                        circle,
+                        rgba(74, 222, 128, 0.45) 0%,
+                        transparent 65%
+                      );
+                    "
+                  ></div>
+
+                  <svg
+                    width="320"
+                    height="320"
+                    viewBox="0 0 320 320"
+                    class="relative z-10"
+                    style="transform: rotate(-135deg)"
+                    role="img"
+                    aria-label="Predicted yield meter"
+                  >
+                    <defs>
+                      <linearGradient
+                        id="meterGradient"
+                        x1="0%"
+                        y1="0%"
+                        x2="100%"
+                        y2="100%"
+                      >
+                        <stop offset="0%" stop-color="#2e7d32" />
+                        <stop offset="60%" stop-color="#3fae5a" />
+                        <stop offset="100%" stop-color="#7bf0a0" />
+                      </linearGradient>
+                      <filter
+                        id="meterGlow"
+                        x="-50%"
+                        y="-50%"
+                        width="200%"
+                        height="200%"
+                      >
+                        <feGaussianBlur stdDeviation="6" result="blur" />
+                        <feMerge>
+                          <feMergeNode in="blur" />
+                          <feMergeNode in="SourceGraphic" />
+                        </feMerge>
+                      </filter>
+                    </defs>
+
+                    <!-- track -->
+                    <circle
+                      id="meterTrack"
+                      cx="160"
+                      cy="160"
+                      r="141"
+                      fill="none"
+                      stroke="rgba(234, 244, 238, 0.08)"
+                      stroke-width="18"
+                      stroke-linecap="round"
+                    />
+                    <!-- progress -->
+                    <circle
+                      id="meterProgress"
+                      cx="160"
+                      cy="160"
+                      r="141"
+                      fill="none"
+                      stroke="url(#meterGradient)"
+                      stroke-width="18"
+                      stroke-linecap="round"
+                      filter="url(#meterGlow)"
+                    />
+                  </svg>
+
+                  <!-- center readout -->
+                  <div
+                    class="absolute inset-0 z-20 flex flex-col items-center justify-center text-center"
+                  >
+                    <span
+                      class="text-xs font-medium uppercase tracking-[0.25em] text-muted-foreground"
+                      >Predicted Yield</span
+                    >
+                    <span
+                      id="meterValue"
+                      class="font-serif text-7xl leading-none text-foreground"
+                      style="
+                        text-shadow: 0 0 25px rgba(74, 222, 128, 0.4);
+                      "
+                      >0.0</span
+                    >
+                    <span class="mt-1 text-sm font-medium text-emerald-bright"
+                      >Maunds/Acre</span
+                    >
+                    <span class="mt-0.5 text-xs text-muted-foreground"
+                      >&plusmn; <span id="rmseVal">0</span> margin</span
+                    >
+                    <div
+                      class="mt-4 flex items-center gap-2 rounded-full px-3 py-1"
+                      style="background: rgba(46, 125, 50, 0.15)"
+                    >
+                      <span class="relative flex h-2 w-2">
+                        <span
+                          class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
+                          style="background: #4ade80"
+                        ></span>
+                        <span
+                          class="relative inline-flex h-2 w-2 rounded-full"
+                          style="background: #4ade80"
+                        ></span>
+                      </span>
+                      <span class="text-xs font-medium text-foreground/80"
+                        ><span id="confidenceVal">0</span>% model
+                        accuracy (R&sup2;)</span
+                      >
+                    </div>
+                  </div>
+                </div>
+
+                <!-- total harvest volume block -->
+                <div
+                  id="volumeBlock"
+                  class="animate-rise w-full max-w-xs space-y-4"
+                >
+                  <div class="glass rounded-2xl p-5">
+                    <div
+                      class="flex items-center gap-2 text-sm text-muted-foreground"
+                    >
+                      <svg
+                        class="h-4 w-4 text-emerald-bright"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <path d="M16 7h6v6" />
+                        <path d="m22 7-8.5 8.5-5-5L2 17" />
+                      </svg>
+                      Total Harvest Volume
+                    </div>
+                    <p class="mt-2 font-serif text-4xl text-foreground">
+                      <span id="totalVolume">0</span>
+                      <span class="ml-2 text-base font-sans text-muted-foreground"
+                        >maunds</span
+                      >
+                    </p>
+                    <p class="mt-1 text-sm text-emerald-bright">
+                      ≈ <span id="totalTons">0</span> metric tons forecast
+                    </p>
+                  </div>
+
+                  <div class="grid grid-cols-2 gap-3">
+                    <div class="glass rounded-2xl p-4 text-center">
+                      <p
+                        class="text-[11px] uppercase tracking-wide text-muted-foreground"
+                      >
+                        Per Acre
+                      </p>
+                      <p
+                        id="perAcre"
+                        class="mt-1 font-serif text-2xl text-foreground"
+                      >
+                        0.0
+                      </p>
+                      <p class="text-xs text-muted-foreground">maunds</p>
+                    </div>
+                    <div class="glass rounded-2xl p-4 text-center">
+                      <p
+                        class="text-[11px] uppercase tracking-wide text-muted-foreground"
+                      >
+                        Cultivated
+                      </p>
+                      <p
+                        id="cultivated"
+                        class="mt-1 font-serif text-2xl text-foreground"
+                      >
+                        12
+                      </p>
+                      <p class="text-xs text-muted-foreground">acres</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- agronomist recommendation -->
+            <div
+              id="recommendationCard"
+              class="animate-rise glass relative overflow-hidden rounded-3xl p-6"
+            >
+              <div
+                class="absolute -right-10 -top-10 h-40 w-40 rounded-full blur-2xl"
+                style="background: rgba(74, 222, 128, 0.22)"
+                aria-hidden="true"
+              ></div>
+              <div class="relative flex items-start gap-4">
+                <div
+                  class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl"
+                  style="background: rgba(46, 125, 50, 0.15)"
+                >
+                  <svg
+                    class="h-5 w-5 text-emerald-bright"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path
+                      d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"
+                    />
+                    <path d="M9 18h6" />
+                    <path d="M10 22h4" />
+                  </svg>
+                </div>
+                <div class="flex-1">
+                  <div class="mb-1 flex flex-wrap items-center gap-2">
+                    <h3 class="font-serif text-lg text-foreground">
+                      Agronomist Insight
+                    </h3>
+                    <span
+                      id="focusBadge"
+                      class="flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium text-emerald-bright"
+                      style="background: rgba(46, 125, 50, 0.12)"
+                    >
+                      <svg
+                        class="h-3 w-3"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <path
+                          d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"
+                        />
+                        <path d="m9 12 2 2 4-4" />
+                      </svg>
+                      <span id="focusBadgeText">Optimized</span>
+                    </span>
+                  </div>
+                  <p
+                    id="recommendationText"
+                    class="text-sm leading-relaxed text-foreground/75 text-pretty"
+                  ></p>
+                </div>
+              </div>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <script>
+      // ================= REAL TRAINED MODEL =================
+      // Injected by app.py from crop_model.pkl + pak_crop_data.csv. The
+      // fallback below holds the same numbers as of the last local training
+      // run, so the page still works if opened outside Streamlit — but
+      // app.py always overwrites it with fresh values from the live model.
+      const MODEL = window.MODEL_DATA || {
+        featureOrder: [
+          'Rainfall_mm', 'GDD_HeatUnits', 'Solar_Radiation', 'Soil_pH',
+          'Clay_Percent', 'Sand_Percent', 'Organic_Carbon', 'Nitrogen_Base',
+          'Phosphorus_Base', 'Urea_Bags', 'DAP_Bags', 'Water_Source',
+          'Seed_Type', 'Land_Size_Acres',
+        ],
+        coefficients: {
+          Rainfall_mm: 0.019677134626619637,
+          GDD_HeatUnits: -0.00015112375621290607,
+          Solar_Radiation: -0.003964639090165509,
+          Soil_pH: -2.9006446494956353,
+          Clay_Percent: 0.10667064154770914,
+          Sand_Percent: -0.05516831705386162,
+          Organic_Carbon: 12.00567066419954,
+          Nitrogen_Base: 0.0009341523040702465,
+          Phosphorus_Base: -0.004138982725463297,
+          Urea_Bags: 4.481847722789807,
+          DAP_Bags: 3.4774754551921423,
+          Water_Source: 3.4713815443010794,
+          Seed_Type: 8.003885785679731,
+          Land_Size_Acres: -0.008300286788436707,
+        },
+        intercept: 14.900313931028762,
+        r2: 0.9854685311123165,
+        rmse: 1.45,
+        featureStats: {
+          Rainfall_mm: { min: 152.08, max: 599.87, mean: 370.62, std: 131.46 },
+          GDD_HeatUnits: { min: 1204.18, max: 2499.24, mean: 1859.12, std: 379.85 },
+          Solar_Radiation: { min: 15.0, max: 29.97, mean: 22.54, std: 4.36 },
+          Soil_pH: { min: 6.2, max: 8.8, mean: 7.47, std: 0.74 },
+          Clay_Percent: { min: 10.0, max: 49.91, mean: 29.76, std: 11.47 },
+          Sand_Percent: { min: 10.22, max: 44.98, mean: 27.45, std: 10.12 },
+          Organic_Carbon: { min: 0.3, max: 1.2, mean: 0.74, std: 0.26 },
+          Nitrogen_Base: { min: 20.01, max: 79.93, mean: 48.94, std: 17.09 },
+          Phosphorus_Base: { min: 5.0, max: 24.92, mean: 14.73, std: 5.64 },
+          Urea_Bags: { min: 0, max: 5, mean: 2.56, std: 1.71 },
+          DAP_Bags: { min: 0, max: 3, mean: 1.55, std: 1.14 },
+          Water_Source: { min: 0, max: 2, mean: 0.99, std: 0.81 },
+          Seed_Type: { min: 0, max: 1, mean: 0.51, std: 0.5 },
+          Land_Size_Acres: { min: 1.0, max: 25.0, mean: 13.06, std: 7.09 },
+        },
+        yieldStats: { min: 0.56, max: 65.71, mean: 34.94 },
+      };
+
+      // Descriptive-only metadata (not model inputs) used to label the
+      // district presets and sidebar chips.
+      const DISTRICT_INFO = {
+        Multan: { soilLabel: 'Sandy Loam', season: 'Rabi' },
+        Faisalabad: { soilLabel: 'Alluvial Clay Loam', season: 'Rabi' },
+        Sargodha: { soilLabel: 'Loamy', season: 'Rabi' },
+        Sukkur: { soilLabel: 'Silty Clay', season: 'Kharif' },
+      };
+
+      // Regional starting points for the Soil & Climate sliders. These are
+      // realistic agronomic estimates (the dataset itself has no district
+      // column) — every one of the model's actual predictions still comes
+      // straight from the slider values, never from this preset directly.
+      const DISTRICT_PRESETS = {
+        Multan: {
+          Rainfall_mm: 200, GDD_HeatUnits: 2200, Solar_Radiation: 24,
+          Soil_pH: 7.8, Clay_Percent: 28, Sand_Percent: 32,
+          Organic_Carbon: 0.55, Nitrogen_Base: 40, Phosphorus_Base: 14,
+        },
+        Faisalabad: {
+          Rainfall_mm: 380, GDD_HeatUnits: 1900, Solar_Radiation: 21,
+          Soil_pH: 7.3, Clay_Percent: 34, Sand_Percent: 24,
+          Organic_Carbon: 0.95, Nitrogen_Base: 58, Phosphorus_Base: 18,
+        },
+        Sargodha: {
+          Rainfall_mm: 430, GDD_HeatUnits: 1850, Solar_Radiation: 20,
+          Soil_pH: 7.1, Clay_Percent: 30, Sand_Percent: 28,
+          Organic_Carbon: 0.85, Nitrogen_Base: 52, Phosphorus_Base: 16,
+        },
+        Sukkur: {
+          Rainfall_mm: 170, GDD_HeatUnits: 2400, Solar_Radiation: 27,
+          Soil_pH: 8.2, Clay_Percent: 18, Sand_Percent: 40,
+          Organic_Carbon: 0.45, Nitrogen_Base: 32, Phosphorus_Base: 10,
+        },
+      };
+
+      const ADVANCED_FEATURES = [
+        { key: 'Rainfall_mm', label: 'Seasonal Rainfall', unit: 'mm', step: 5, decimals: 0 },
+        { key: 'GDD_HeatUnits', label: 'Growing Degree Days', unit: 'GDD', step: 25, decimals: 0 },
+        { key: 'Solar_Radiation', label: 'Solar Radiation', unit: 'MJ/m²/day', step: 0.5, decimals: 1 },
+        { key: 'Soil_pH', label: 'Soil pH', unit: 'pH', step: 0.1, decimals: 1 },
+        { key: 'Clay_Percent', label: 'Clay Content', unit: '%', step: 1, decimals: 0 },
+        { key: 'Sand_Percent', label: 'Sand Content', unit: '%', step: 1, decimals: 0 },
+        { key: 'Organic_Carbon', label: 'Organic Carbon', unit: '%', step: 0.05, decimals: 2 },
+        { key: 'Nitrogen_Base', label: 'Base Soil Nitrogen', unit: 'kg/ha', step: 1, decimals: 0 },
+        { key: 'Phosphorus_Base', label: 'Base Soil Phosphorus', unit: 'kg/ha', step: 1, decimals: 0 },
+      ];
+
+      const WATER_LABELS = { 0: 'Rain-fed', 1: 'Canal', 2: 'Tubewell' };
+      const SEED_LABELS = { 0: 'Standard Seed', 1: 'Certified/Branded Seed' };
+
+      // ================= MODEL MATH =================
+      // Exact linear regression the model was trained on:
+      //   yield_per_acre = intercept + sum(coef_i * feature_i)
+      function predictYield(state) {
+        let total = MODEL.intercept;
+        for (const key of MODEL.featureOrder) {
+          total += MODEL.coefficients[key] * state[key];
+        }
+        return total;
+      }
+
+      // Coefficient-weighted 0-100 fertility score built from the soil
+      // features that actually drive the model's prediction, normalized by
+      // each feature's real trained range.
+      function fertilityIndex(state) {
+        const soilFeatures = ['Soil_pH', 'Clay_Percent', 'Sand_Percent', 'Organic_Carbon'];
+        let weightedSum = 0;
+        let weightTotal = 0;
+        soilFeatures.forEach((key) => {
+          const coef = MODEL.coefficients[key];
+          const { min, max } = MODEL.featureStats[key];
+          const range = max - min;
+          let norm = range > 0 ? (state[key] - min) / range : 0.5;
+          if (coef < 0) norm = 1 - norm;
+          const weight = Math.abs(coef) * range;
+          weightedSum += norm * weight;
+          weightTotal += weight;
+        });
+        const pct = weightTotal > 0 ? (weightedSum / weightTotal) * 100 : 50;
+        return Math.round(Math.max(0, Math.min(100, pct)));
+      }
+
+      // Finds the input with the largest remaining yield headroom, using
+      // the model's own coefficients — not a hand-tuned heuristic.
+      function buildRecommendation(state) {
+        const controllable = ['Urea_Bags', 'DAP_Bags', 'Water_Source', 'Seed_Type'];
+        let best = null;
+        controllable.forEach((key) => {
+          const coef = MODEL.coefficients[key];
+          const { min, max } = MODEL.featureStats[key];
+          const target = coef >= 0 ? max : min;
+          const gain = coef * (target - state[key]);
+          if (gain > 0.5 && (!best || gain > best.gain)) {
+            best = { key, gain, target };
+          }
+        });
+
+        if (best) {
+          if (best.key === 'Urea_Bags') {
+            return {
+              badge: 'Focus: Nitrogen (Urea)',
+              text: `Your field is nitrogen-limited. Raising Urea toward ${best.target} bags/acre would add roughly ${best.gain.toFixed(1)} maunds/acre — split the dose across tillering and stem-elongation for best uptake.`,
+            };
+          }
+          if (best.key === 'DAP_Bags') {
+            return {
+              badge: 'Focus: Phosphorus (DAP)',
+              text: `Phosphorus is the current bottleneck. Applying ${best.target} DAP bags/acre as a basal dose at sowing could add roughly ${best.gain.toFixed(1)} maunds/acre by strengthening root development.`,
+            };
+          }
+          if (best.key === 'Water_Source') {
+            return {
+              badge: 'Focus: Water Reliability',
+              text: `Water reliability is capping your yield. Moving from ${WATER_LABELS[state.Water_Source]} toward ${WATER_LABELS[best.target]} irrigation could add roughly ${best.gain.toFixed(1)} maunds/acre.`,
+            };
+          }
+          if (best.key === 'Seed_Type') {
+            return {
+              badge: 'Focus: Seed Quality',
+              text: `Switching from ${SEED_LABELS[state.Seed_Type]} to ${SEED_LABELS[best.target]} could add roughly ${best.gain.toFixed(1)} maunds/acre based on the trained model.`,
+            };
+          }
+        }
+
+        // No quick seasonal win left — check longer-term soil-health levers.
+        const soilTier = ['Organic_Carbon', 'Soil_pH'];
+        let soilBest = null;
+        soilTier.forEach((key) => {
+          const coef = MODEL.coefficients[key];
+          const { min, max } = MODEL.featureStats[key];
+          const target = coef >= 0 ? max : min;
+          const gain = coef * (target - state[key]);
+          if (gain > 1 && (!soilBest || gain > soilBest.gain)) {
+            soilBest = { key, gain };
+          }
+        });
+        if (soilBest && soilBest.key === 'Organic_Carbon') {
+          return {
+            badge: 'Focus: Soil Health',
+            text: `Fertilizer and water are well optimized. Building Organic Carbon through compost or green manure over seasons could still add roughly ${soilBest.gain.toFixed(1)} maunds/acre.`,
+          };
+        }
+        if (soilBest && soilBest.key === 'Soil_pH') {
+          return {
+            badge: 'Focus: Soil Health',
+            text: `Fertilizer and water are well optimized. Your soil is on the alkaline side — a gypsum amendment to lower pH could add roughly ${soilBest.gain.toFixed(1)} maunds/acre over time.`,
+          };
+        }
+
+        return {
+          badge: 'Optimized',
+          text: `Excellent balance — every input the model responds to (fertilizer, water, seed, soil) is near its trained optimum. Maintain this regimen and monitor for late-season pest pressure to protect the forecast.`,
+        };
+      }
+
+      // ================= STATE =================
+      const state = {
+        district: 'Faisalabad',
+        Land_Size_Acres: 12,
+        Urea_Bags: 3,
+        DAP_Bags: 2,
+        Seed_Type: 0,
+        Water_Source: 1,
+        ...DISTRICT_PRESETS.Faisalabad,
+      };
+
+      // ================= METER ANIMATION =================
+      const R = 141;
+      const CIRCUMFERENCE = 2 * Math.PI * R;
+      const ARC_FRACTION = 0.75;
+      const ARC_LENGTH = CIRCUMFERENCE * ARC_FRACTION;
+      const trackEl = document.getElementById('meterTrack');
+      const progressEl = document.getElementById('meterProgress');
+      trackEl.setAttribute('stroke-dasharray', `${ARC_LENGTH} ${CIRCUMFERENCE}`);
+
+      // Meter scale reflects the real target range the model was trained
+      // on (Yield_Maunds), not a per-crop guess.
+      const METER_MAX = Math.ceil((MODEL.yieldStats.max * 1.05) / 5) * 5;
+
+      let animFrom = 0;
+      let rafId = null;
+
+      function animateMeter(targetValue) {
+        cancelAnimationFrame(rafId);
+        const from = animFrom;
+        const start = performance.now();
+        const duration = 900;
+        const valueEl = document.getElementById('meterValue');
+
+        function tick(now) {
+          const t = Math.min(1, (now - start) / duration);
+          const eased = 1 - Math.pow(1 - t, 3);
+          const current = from + (targetValue - from) * eased;
+          const pct = Math.max(0, Math.min(1, current / METER_MAX));
+          progressEl.setAttribute(
+            'stroke-dasharray',
+            `${ARC_LENGTH * pct} ${CIRCUMFERENCE}`
+          );
+          valueEl.textContent = current.toFixed(1);
+          if (t < 1) {
+            rafId = requestAnimationFrame(tick);
+          } else {
+            animFrom = targetValue;
+          }
+        }
+        rafId = requestAnimationFrame(tick);
+      }
+
+      // ================= ADVANCED PANEL (SOIL & CLIMATE) =================
+      function buildAdvancedPanel() {
+        const panel = document.getElementById('advancedPanel');
+        panel.innerHTML = ADVANCED_FEATURES.map((f) => {
+          const { min, max } = MODEL.featureStats[f.key];
+          return `
+            <div>
+              <div class="mb-2 flex items-center justify-between">
+                <label class="text-sm font-medium text-foreground/80" for="feat_${f.key}">${f.label}</label>
+                <span class="font-mono text-sm text-emerald-bright"><span id="feat_${f.key}Val">0</span> ${f.unit}</span>
+              </div>
+              <input type="range" id="feat_${f.key}" min="${min}" max="${max}" step="${f.step}" value="${min}" />
+            </div>`;
+        }).join('');
+
+        ADVANCED_FEATURES.forEach((f) => {
+          const el = document.getElementById(`feat_${f.key}`);
+          el.addEventListener('input', () => {
+            state[f.key] = Number(el.value);
+            document.getElementById(`feat_${f.key}Val`).textContent =
+              Number(el.value).toFixed(f.decimals);
+            render();
+          });
+        });
+      }
+
+      function syncAdvancedSliders() {
+        ADVANCED_FEATURES.forEach((f) => {
+          const el = document.getElementById(`feat_${f.key}`);
+          const valEl = document.getElementById(`feat_${f.key}Val`);
+          if (!el) return;
+          el.value = state[f.key];
+          valEl.textContent = Number(state[f.key]).toFixed(f.decimals);
+        });
+      }
+
+      const advancedToggle = document.getElementById('advancedToggle');
+      const advancedPanel = document.getElementById('advancedPanel');
+      const advancedChevron = document.getElementById('advancedChevron');
+      advancedToggle.addEventListener('click', () => {
+        const collapsed = advancedPanel.classList.toggle('hidden');
+        advancedPanel.classList.toggle('grid', !collapsed);
+        advancedChevron.style.transform = collapsed ? '' : 'rotate(180deg)';
+      });
+
+      // ================= RENDER =================
+      function retrigger(el) {
+        el.classList.remove('animate-rise');
+        void el.offsetWidth;
+        el.classList.add('animate-rise');
+      }
+
+      function render() {
+        const info = DISTRICT_INFO[state.district];
+        const yieldPerAcre = predictYield(state);
+        const totalVolume = yieldPerAcre * state.Land_Size_Acres;
+        const fertility = fertilityIndex(state);
+        const rec = buildRecommendation(state);
+
+        // sidebar profile
+        document.getElementById('profileStats').innerHTML = `
+          ${statChip('Soil Type', info.soilLabel)}
+          ${statChip('Avg Rainfall', Math.round(state.Rainfall_mm) + ' mm')}
+          ${statChip('Crop Season', info.season)}
+          ${statChip('Fertility Index', fertility + '/100')}
+        `;
+        document.getElementById('fertilityPct').textContent = fertility + '%';
+        document.getElementById('fertilityBar').style.width = fertility + '%';
+        document.getElementById('headerDistrict').textContent = state.district;
+
+        // meter + accuracy
+        animateMeter(yieldPerAcre);
+        document.getElementById('confidenceVal').textContent = (MODEL.r2 * 100).toFixed(1);
+        document.getElementById('rmseVal').textContent = MODEL.rmse.toFixed(1);
+
+        // volume block
+        const totalTons = (totalVolume * 0.0373).toFixed(1);
+        document.getElementById('totalVolume').textContent =
+          Math.round(totalVolume).toLocaleString();
+        document.getElementById('totalTons').textContent = totalTons;
+        document.getElementById('perAcre').textContent = yieldPerAcre.toFixed(1);
+        document.getElementById('cultivated').textContent = state.Land_Size_Acres;
+        retrigger(document.getElementById('volumeBlock'));
+
+        // recommendation
+        document.getElementById('recommendationText').textContent = rec.text;
+        document.getElementById('focusBadgeText').textContent = rec.badge;
+        retrigger(document.getElementById('recommendationCard'));
+      }
+
+      function statChip(label, value) {
+        return `
+          <div class="glass-strong rounded-xl p-3">
+            <p class="text-[11px] uppercase tracking-wide text-muted-foreground">${label}</p>
+            <p class="mt-1 text-sm font-semibold text-foreground">${value}</p>
+          </div>`;
+      }
+
+      // ================= EVENTS =================
+      function bindSlider(id, key, decimals = 0) {
+        const el = document.getElementById(id);
+        const valEl = document.getElementById(id + 'Val');
+        el.addEventListener('input', () => {
+          state[key] = Number(el.value);
+          valEl.textContent = Number(el.value).toFixed(decimals);
+          render();
+        });
+      }
+      bindSlider('landSize', 'Land_Size_Acres');
+      bindSlider('ureaBags', 'Urea_Bags');
+      bindSlider('dapBags', 'DAP_Bags');
+
+      document.getElementById('district').addEventListener('change', (e) => {
+        state.district = e.target.value;
+        Object.assign(state, DISTRICT_PRESETS[state.district]);
+        syncAdvancedSliders();
+        render();
+      });
+      document.getElementById('seedType').addEventListener('change', (e) => {
+        state.Seed_Type = Number(e.target.value);
+        render();
+      });
+      document.getElementById('waterSource').addEventListener('change', (e) => {
+        state.Water_Source = Number(e.target.value);
+        render();
+      });
+
+      // initial paint
+      buildAdvancedPanel();
+      syncAdvancedSliders();
+      render();
+    </script>
+  </body>
+</html>
