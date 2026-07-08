@@ -90,3 +90,24 @@ if st.button("📊 Execute Predictive Analytics", type="primary", use_container_
         st.info("Your parameters show lower genetic baseline trends. Swapping to **Certified Branded Seeds** will immediately scale your calculated performance ceiling by up to 8 Maunds per acre.")
     else:
         st.success("Excellent application matrix. Certified seeds are taking maximum biological advantage of your applied chemical fertilizer metrics.")
+    # Read file components
+with open("kisaan-dost.html", "r", encoding="utf-8") as f:
+    html_content = f.read()
+
+# Apply the pipeline replacements
+rendered_ui = html_content
+rendered_ui = rendered_ui.replace("`{st_district}`", f"`{district}`")
+rendered_ui = rendered_ui.replace("`{st_land_size}`", f"`{land_size}`")
+rendered_ui = rendered_ui.replace("`{st_urea_bags}`", f"`{urea}`")
+rendered_ui = rendered_ui.replace("`{st_dap_bags}`", f"`{dap}`")
+rendered_ui = rendered_ui.replace("`{st_seed_type}`", f"`{seed_type}`")
+rendered_ui = rendered_ui.replace("`{st_water_source}`", f"`{water_type}`")
+
+rendered_ui = rendered_ui.replace("`{predicted_yield}`", f"`{prediction:.2f}`")
+rendered_ui = rendered_ui.replace("`{total_volume}`", f"`{calculated_total:.1f}`")
+rendered_ui = rendered_ui.replace("`{confidence}`", f"`{confidence_score}`")
+rendered_ui = rendered_ui.replace("`{limiting_factor}`", f"`{limiting_factor}`")
+rendered_ui = rendered_ui.replace("`{recommendation}`", f"`{recommendation_text}`")
+
+# Render out to components layout canvas frame
+components.html(rendered_ui, height=900, scrolling=True)
