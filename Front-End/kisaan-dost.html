@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kisaan Dost — Smart Agriculture AI</title>
+  <meta name="description" content="Kisaan Dost — AI-powered yield optimization console for farmers in Pakistan." />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet" />
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Manrope', 'system-ui', 'sans-serif'],
+            serif: ['"Instrument Serif"', 'Georgia', 'serif'],
+          },
+          colors: {
+            background: '#08120d',
+            foreground: '#eaf4ee',
+            'muted-foreground': '#8ba699',
+            border: 'rgba(120, 180, 150, 0.12)',
+            secondary: 'rgba(140, 200, 170, 0.10)',
+            'primary-foreground': '#04120a',
+            emerald: '#2E7D32',
+            'emerald-bright': '#4ade80',
+          },
+          borderRadius: {
+            '3xl': '1.5rem',
+          },
+        },
+      },
+    };
+  </script>
+
+  <style>
+    body {
+      background-color: #08120d;
+      color: #eaf4ee;
+      font-family: 'Manrope', system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .font-serif {
+      font-family: 'Instrument Serif', Georgia, serif;
+    }
+
+    /* Glassmorphism */
+    .glass {
+      background: linear-gradient(160deg,
+          rgba(46, 125, 50, 0.08),
+          rgba(255, 255, 255, 0.02));
+      border: 1px solid rgba(120, 180, 150, 0.12);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
+
+    .glass-strong {
+      background: linear-gradient(160deg,
+          rgba(46, 125, 50, 0.14),
+          rgba(255, 255, 255, 0.03));
+      border: 1px solid rgba(120, 180, 150, 0.16);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      box-shadow: 0 12px 48px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    }
+
+    .bg-emerald {
+      background-color: #2e7d32;
+    }
+
+    .text-emerald-bright {
+      color: #4ade80;
+    }
+
+    /* Range slider styling */
+    input[type='range'] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 8px;
+      border-radius: 9999px;
+      background: rgba(140, 200, 170, 0.14);
+      outline: none;
+    }
+
+    input[type='range']::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: linear-gradient(145deg, #4ade80, #2e7d32);
+      cursor: pointer;
+      border: 3px solid #08120d;
+      box-shadow: 0 0 18px rgba(74, 222, 128, 0.6);
+      transition: transform 0.15s ease;
+    }
+
+    input[type='range']::-webkit-slider-thumb:hover {
+      transform: scale(1.15);
+    }
+
+    input[type='range']::-moz-range-thumb {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: linear-gradient(145deg, #4ade80, #2e7d32);
+      cursor: pointer;
+      border: 3px solid #08120d;
+      box-shadow: 0 0 18px rgba(74, 222, 128, 0.6);
+    }
+
+    /* Custom select */
+    select {
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%234ade80' stroke-width='2' viewBox='0 0 24 24'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.9rem center;
+    }
+
+    select option {
+      background: #0b1b13;
+      color: #eaf4ee;
+    }
+
+    /* Animations */
+    @keyframes rise {
+      from {
+        opacity: 0;
+        transform: translateY(14px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .animate-rise {
+      animation: rise 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    @keyframes float-glow {
+
+      0%,
+      100% {
+        transform: scale(1);
+        opacity: 0.8;
+      }
+
+      50% {
+        transform: scale(1.08);
+        opacity: 1;
+      }
+    }
+
+    .animate-float-glow {
+      animation: float-glow 4s ease-in-out infinite;
+    }
+
+    @keyframes ping {
+
+      75%,
+      100% {
+        transform: scale(2);
+        opacity: 0;
+      }
+    }
+
+    .animate-ping {
+      animation: ping 1.4s cubic-bezier(0, 0, 0.2, 1) infinite;
+    }
+
+    .fill-bar {
+      transition: width 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .card-hover {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card-hover:hover {
+      transform: translateY(-3px);
+    }
+  </style>
+</head>
+
+<body class="min-h-screen">
+  <div class="relative min-h-screen overflow-hidden">
+    <!-- ambient background -->
+    <div class="pointer-events-none fixed inset-0 -z-10" aria-hidden="true" style="
+          background: radial-gradient(
+              1200px 600px at 85% -5%,
+              rgba(46, 125, 50, 0.22),
+              transparent 60%
+            ),
+            radial-gradient(
+              900px 500px at 5% 105%,
+              rgba(52, 180, 120, 0.16),
+              transparent 55%
+            );
+        "></div>
+
+    <div class="mx-auto flex max-w-[1500px] flex-col gap-6 p-4 lg:flex-row lg:p-6">
+      <!-- ============ SIDEBAR ============ -->
+      <aside class="glass flex w-full shrink-0 flex-col gap-6 rounded-3xl p-6 lg:w-80">
+        <!-- brand -->
+        <div class="flex items-center gap-3">
+          <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald"
+            style="box-shadow: 0 0 24px rgba(74, 222, 128, 0.55)">
+            <svg class="h-6 w-6 text-primary-foreground" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M7 20h10" />
+              <path d="M10 20c5.5-2.5.8-6.4 3-10" />
+              <path d="M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5.8z" />
+              <path d="M14.1 6a7 7 0 0 0-1.1 4c1.9-.1 3.3-.6 4.3-1.4 1-1 1.6-2.3 1.7-4.6-2.7.1-4 1-4.9 2z" />
+            </svg>
+          </div>
+          <div>
+            <h1 class="font-serif text-xl leading-none text-foreground">
+              Kisaan Dost
+            </h1>
+            <p class="text-xs tracking-wide text-muted-foreground">
+              Smart Agriculture AI
+            </p>
+          </div>
+        </div>
+
+        <div class="h-px w-full bg-border"></div>
+
+        <!-- regional profile -->
+        <div>
+          <h2
+            class="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            <svg class="h-3.5 w-3.5 text-emerald-bright" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path
+                d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" />
+              <circle cx="12" cy="10" r="3" />
+            </svg>
+            Regional Profile
+          </h2>
+          <label class="mb-1.5 block text-sm font-medium text-foreground/80" for="district">District</label>
+          <select id="district"
+            class="glass-strong w-full rounded-xl px-4 py-3 text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-emerald-bright/50">
+            <option value="Multan">Multan</option>
+            <option value="Faisalabad" selected>Faisalabad</option>
+            <option value="Sargodha">Sargodha</option>
+            <option value="Sukkur">Sukkur</option>
+          </select>
+        </div>
+
+        <!-- profile stats -->
+        <div class="grid grid-cols-2 gap-3" id="profileStats">
+          <!-- stat chips injected by JS -->
+        </div>
+
+        <!-- fertility bar -->
+        <div class="glass-strong rounded-2xl p-4">
+          <div class="mb-2 flex items-center justify-between">
+            <span class="flex items-center gap-2 text-sm font-medium text-foreground/80">
+              <svg class="h-4 w-4 text-emerald-bright" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="4" />
+                <path d="M12 2v2" />
+                <path d="M12 20v2" />
+                <path d="m4.93 4.93 1.41 1.41" />
+                <path d="m17.66 17.66 1.41 1.41" />
+                <path d="M2 12h2" />
+                <path d="M20 12h2" />
+                <path d="m6.34 17.66-1.41 1.41" />
+                <path d="m19.07 4.93-1.41 1.41" />
+              </svg>
+              Land Fertility
+            </span>
+            <span class="font-mono text-sm text-emerald-bright" id="fertilityPct">91%</span>
+          </div>
+          <div class="h-2 w-full overflow-hidden rounded-full bg-secondary">
+            <div id="fertilityBar" class="fill-bar h-full rounded-full" style="
+                  width: 91%;
+                  background: linear-gradient(90deg, #2e7d32, #4ade80);
+                "></div>
+          </div>
+        </div>
+
+        <div class="mt-auto flex items-center gap-3 rounded-2xl p-4" style="background: rgba(46, 125, 50, 0.1)">
+          <svg class="h-5 w-5 shrink-0 text-emerald-bright" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 17.58A5 5 0 0 0 18 8h-1.26A8 8 0 1 0 4 16.25" />
+            <path d="M8 19v1" />
+            <path d="M8 14v1" />
+            <path d="M16 19v1" />
+            <path d="M16 14v1" />
+            <path d="M12 21v1" />
+            <path d="M12 16v1" />
+          </svg>
+          <p class="text-xs leading-relaxed text-foreground/70">
+            Live advisory synced with Punjab &amp; Sindh agri-met stations.
+          </p>
+        </div>
+      </aside>
+
+      <!-- ============ MAIN ============ -->
+      <main class="flex flex-1 flex-col gap-6">
+        <!-- header -->
+        <header class="glass flex flex-col justify-between gap-3 rounded-3xl px-6 py-5 sm:flex-row sm:items-center">
+          <div>
+            <div class="flex items-center gap-2 text-emerald-bright">
+              <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z" />
+                <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" />
+              </svg>
+              <span class="text-xs font-semibold uppercase tracking-[0.2em]">Yield Optimization Console</span>
+            </div>
+            <h1 class="mt-1 font-serif text-3xl text-foreground text-balance">
+              Predict &amp; maximize your harvest
+            </h1>
+          </div>
+          <div class="flex items-center gap-2 rounded-2xl px-4 py-2.5" style="background: rgba(46, 125, 50, 0.12)">
+            <svg class="h-4 w-4 text-emerald-bright" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path
+                d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .962 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.962 0z" />
+            </svg>
+            <span class="text-sm font-medium text-foreground/80">
+              AI live in <span id="headerDistrict">Faisalabad</span>
+            </span>
+          </div>
+        </header>
+
+        <!-- input panel -->
+        <section class="glass rounded-3xl p-6 lg:p-7">
+          <div class="mb-6 flex items-center justify-between">
+            <div>
+              <h2 class="font-serif text-2xl text-foreground">Field Inputs</h2>
+              <p class="text-sm text-muted-foreground">
+                Tune your resources — the forecast updates live.
+              </p>
+            </div>
+            <span class="hidden rounded-full px-3 py-1 text-xs font-medium text-emerald-bright sm:block"
+              style="background: rgba(46, 125, 50, 0.12)">Season 2026</span>
+          </div>
+
+          <div class="grid grid-cols-1 gap-x-8 gap-y-6 md:grid-cols-2">
+            <!-- Land Size -->
+            <div>
+              <div class="mb-2 flex items-center justify-between">
+                <label class="flex items-center gap-2 text-sm font-medium text-foreground/80" for="landSize">
+                  <svg class="h-4 w-4 text-emerald-bright" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path
+                      d="M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.41 2.41 0 0 1 0-3.4l2.6-2.6a2.41 2.41 0 0 1 3.4 0Z" />
+                    <path d="m14.5 12.5 2-2" />
+                    <path d="m11.5 9.5 2-2" />
+                    <path d="m8.5 6.5 2-2" />
+                    <path d="m17.5 15.5 2-2" />
+                  </svg>
+                  Land Size
+                </label>
+                <span class="font-mono text-sm text-emerald-bright"><span id="landSizeVal">12</span> acre</span>
+              </div>
+              <input type="range" id="landSize" min="1" max="100" step="1" value="12" />
+            </div>
+
+            <!-- Urea Bags -->
+            <div>
+              <div class="mb-2 flex items-center justify-between">
+                <label class="flex items-center gap-2 text-sm font-medium text-foreground/80" for="ureaBags">
+                  <svg class="h-4 w-4 text-emerald-bright" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16.5 9.4 7.55 4.24" />
+                    <path
+                      d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+                    <path d="m3.3 7 8.7 5 8.7-5" />
+                    <path d="M12 22V12" />
+                  </svg>
+                  Urea Bags
+                </label>
+                <span class="font-mono text-sm text-emerald-bright"><span id="ureaBagsVal">26</span> bags</span>
+              </div>
+              <input type="range" id="ureaBags" min="0" max="300" step="1" value="26" />
+            </div>
+
+            <!-- DAP Bags -->
+            <div>
+              <div class="mb-2 flex items-center justify-between">
+                <label class="flex items-center gap-2 text-sm font-medium text-foreground/80" for="dapBags">
+                  <svg class="h-4 w-4 text-emerald-bright" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2 2 7l10 5 10-5-10-5Z" />
+                    <path d="m2 17 10 5 10-5" />
+                    <path d="m2 12 10 5 10-5" />
+                  </svg>
+                  DAP Bags
+                </label>
+                <span class="font-mono text-sm text-emerald-bright"><span id="dapBagsVal">12</span> bags</span>
+              </div>
+              <input type="range" id="dapBags" min="0" max="200" step="1" value="12" />
+            </div>
+
+            <!-- Seed Type -->
+            <div class="flex items-end">
+              <div class="w-full">
+                <label class="mb-2 flex items-center gap-2 text-sm font-medium text-foreground/80" for="seedType">
+                  <svg class="h-4 w-4 text-emerald-bright" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M2 22 16 8" />
+                    <path d="M3.47 12.53 5 11l1.53 1.53a3.5 3.5 0 0 1 0 4.94L5 19l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z" />
+                    <path d="M7.47 8.53 9 7l1.53 1.53a3.5 3.5 0 0 1 0 4.94L9 15l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z" />
+                    <path d="M11.47 4.53 13 3l1.53 1.53a3.5 3.5 0 0 1 0 4.94L13 11l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z" />
+                    <path d="M20 2h2v2a4 4 0 0 1-4 4h-2V6a4 4 0 0 1 4-4Z" />
+                  </svg>
+                  Seed Type
+                </label>
+                <select id="seedType"
+                  class="glass-strong w-full rounded-xl px-4 py-3 text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-emerald-bright/50">
+                  <option value="Wheat" selected>Wheat</option>
+                  <option value="Cotton">Cotton</option>
+                  <option value="Rice">Rice</option>
+                  <option value="Sugarcane">Sugarcane</option>
+                  <option value="Maize">Maize</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Water Source -->
+            <div class="md:col-span-2">
+              <label class="mb-2 flex items-center gap-2 text-sm font-medium text-foreground/80" for="waterSource">
+                <svg class="h-4 w-4 text-emerald-bright" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                  fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path
+                    d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z" />
+                </svg>
+                Water Source
+              </label>
+              <select id="waterSource"
+                class="glass-strong w-full rounded-xl px-4 py-3 text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-emerald-bright/50">
+                <option value="Canal" selected>Canal</option>
+                <option value="Tubewell">Tubewell</option>
+                <option value="Rain-fed">Rain-fed</option>
+                <option value="Mixed">Mixed</option>
+              </select>
+            </div>
+          </div>
+        </section>
+
+        <!-- forecast panel -->
+        <section class="flex flex-col gap-6">
+          <!-- meter card -->
+          <div class="glass-strong relative overflow-hidden rounded-3xl p-6 lg:p-8">
+            <div class="mb-2 flex items-center gap-2">
+              <svg class="h-4 w-4 text-emerald-bright" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m12 14 4-4" />
+                <path d="M3.34 19a10 10 0 1 1 17.32 0" />
+              </svg>
+              <h2 class="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+                Yield Forecast
+              </h2>
+            </div>
+
+            <div class="flex flex-col items-center gap-8 lg:flex-row lg:justify-around">
+              <!-- YIELD METER -->
+              <div class="relative flex items-center justify-center">
+                <div class="animate-float-glow absolute inset-0 rounded-full blur-3xl" aria-hidden="true" style="
+                      background: radial-gradient(
+                        circle,
+                        rgba(74, 222, 128, 0.45) 0%,
+                        transparent 65%
+                      );
+                    "></div>
+
+                <svg width="320" height="320" viewBox="0 0 320 320" class="relative z-10"
+                  style="transform: rotate(-135deg)" role="img" aria-label="Predicted yield meter">
+                  <defs>
+                    <linearGradient id="meterGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#2e7d32" />
+                      <stop offset="60%" stop-color="#3fae5a" />
+                      <stop offset="100%" stop-color="#7bf0a0" />
+                    </linearGradient>
+                    <filter id="meterGlow" x="-50%" y="-50%" width="200%" height="200%">
+                      <feGaussianBlur stdDeviation="6" result="blur" />
+                      <feMerge>
+                        <feMergeNode in="blur" />
+                        <feMergeNode in="SourceGraphic" />
+                      </feMerge>
+                    </filter>
+                  </defs>
+
+                  <!-- track -->
+                  <circle id="meterTrack" cx="160" cy="160" r="141" fill="none" stroke="rgba(234, 244, 238, 0.08)"
+                    stroke-width="18" stroke-linecap="round" />
+                  <!-- progress -->
+                  <circle id="meterProgress" cx="160" cy="160" r="141" fill="none" stroke="url(#meterGradient)"
+                    stroke-width="18" stroke-linecap="round" filter="url(#meterGlow)" />
+                </svg>
+
+                <!-- center readout -->
+                <div class="absolute inset-0 z-20 flex flex-col items-center justify-center text-center">
+                  <span class="text-xs font-medium uppercase tracking-[0.25em] text-muted-foreground">Predicted
+                    Yield</span>
+                  <span id="meterValue" class="font-serif text-7xl leading-none text-foreground" style="
+                        text-shadow: 0 0 25px rgba(74, 222, 128, 0.4);
+                      ">0.0</span>
+                  <span class="mt-1 text-sm font-medium text-emerald-bright">Maunds/Acre</span>
+                  <div class="mt-4 flex items-center gap-2 rounded-full px-3 py-1"
+                    style="background: rgba(46, 125, 50, 0.15)">
+                    <span class="relative flex h-2 w-2">
+                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
+                        style="background: #4ade80"></span>
+                      <span class="relative inline-flex h-2 w-2 rounded-full" style="background: #4ade80"></span>
+                    </span>
+                    <span class="text-xs font-medium text-foreground/80"><span id="confidenceVal">0</span>% model
+                      confidence</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- total harvest volume block -->
+              <div id="volumeBlock" class="animate-rise w-full max-w-xs space-y-4">
+                <div class="glass rounded-2xl p-5">
+                  <div class="flex items-center gap-2 text-sm text-muted-foreground">
+                    <svg class="h-4 w-4 text-emerald-bright" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                      fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M16 7h6v6" />
+                      <path d="m22 7-8.5 8.5-5-5L2 17" />
+                    </svg>
+                    Total Harvest Volume
+                  </div>
+                  <p class="mt-2 font-serif text-4xl text-foreground">
+                    <span id="totalVolume">0</span>
+                    <span class="ml-2 text-base font-sans text-muted-foreground">maunds</span>
+                  </p>
+                  <p class="mt-1 text-sm text-emerald-bright">
+                    ≈ <span id="totalTons">0</span> metric tons forecast
+                  </p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                  <div class="glass rounded-2xl p-4 text-center">
+                    <p class="text-[11px] uppercase tracking-wide text-muted-foreground">
+                      Per Acre
+                    </p>
+                    <p id="perAcre" class="mt-1 font-serif text-2xl text-foreground">
+                      0.0
+                    </p>
+                    <p class="text-xs text-muted-foreground">maunds</p>
+                  </div>
+                  <div class="glass rounded-2xl p-4 text-center">
+                    <p class="text-[11px] uppercase tracking-wide text-muted-foreground">
+                      Cultivated
+                    </p>
+                    <p id="cultivated" class="mt-1 font-serif text-2xl text-foreground">
+                      12
+                    </p>
+                    <p class="text-xs text-muted-foreground">acres</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- agronomist recommendation -->
+          <div id="recommendationCard" class="animate-rise glass relative overflow-hidden rounded-3xl p-6">
+            <div class="absolute -right-10 -top-10 h-40 w-40 rounded-full blur-2xl"
+              style="background: rgba(74, 222, 128, 0.22)" aria-hidden="true"></div>
+            <div class="relative flex items-start gap-4">
+              <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl"
+                style="background: rgba(46, 125, 50, 0.15)">
+                <svg class="h-5 w-5 text-emerald-bright" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                  fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path
+                    d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5" />
+                  <path d="M9 18h6" />
+                  <path d="M10 22h4" />
+                </svg>
+              </div>
+              <div class="flex-1">
+                <div class="mb-1 flex flex-wrap items-center gap-2">
+                  <h3 class="font-serif text-lg text-foreground">
+                    Agronomist Insight
+                  </h3>
+                  <span id="focusBadge"
+                    class="flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium text-emerald-bright"
+                    style="background: rgba(46, 125, 50, 0.12)">
+                    <svg class="h-3 w-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path
+                        d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z" />
+                      <path d="m9 12 2 2 4-4" />
+                    </svg>
+                    <span id="focusBadgeText">Optimized</span>
+                  </span>
+                </div>
+                <p id="recommendationText" class="text-sm leading-relaxed text-foreground/75 text-pretty"></p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    // ================= DATA =================
+    const CROP_POTENTIAL = {
+      Wheat: 55,
+      Cotton: 32,
+      Rice: 48,
+      Sugarcane: 900,
+      Maize: 70,
+    };
+    const DISTRICT_FACTOR = {
+      Multan: 0.98,
+      Faisalabad: 1.05,
+      Sargodha: 1.0,
+      Sukkur: 0.9,
+    };
+    const WATER_FACTOR = {
+      Canal: 1.0,
+      Tubewell: 0.92,
+      'Rain-fed': 0.78,
+      Mixed: 0.96,
+    };
+    const OPTIMAL_UREA = {
+      Wheat: 2.2,
+      Cotton: 3,
+      Rice: 2.5,
+      Sugarcane: 5,
+      Maize: 3,
+    };
+    const OPTIMAL_DAP = {
+      Wheat: 1,
+      Cotton: 1.5,
+      Rice: 1.2,
+      Sugarcane: 2,
+      Maize: 1.5,
+    };
+    const METER_MAX = {
+      Wheat: 60,
+      Cotton: 36,
+      Rice: 52,
+      Sugarcane: 1000,
+      Maize: 78,
+    };
+    const PROFILES = {
+      Multan: { soil: 'Sandy Loam', rainfall: '186 mm', season: 'Rabi', index: 82 },
+      Faisalabad: { soil: 'Alluvial Clay', rainfall: '347 mm', season: 'Rabi', index: 91 },
+      Sargodha: { soil: 'Loamy', rainfall: '412 mm', season: 'Rabi', index: 87 },
+      Sukkur: { soil: 'Silty Clay', rainfall: '92 mm', season: 'Kharif', index: 74 },
+    };
+
+    // ================= STATE & STREAMLIT INTERPOLATION =================
+    // Safely check and read data points passed from python backend string matching replacement tokens
+    const state = {
+      district: `{st_district}`.startsWith("{") ? 'Faisalabad' : `{st_district}`,
+      landSize: `{st_land_size}`.startsWith("{") ? 12 : Number(`{st_land_size}`),
+      ureaBags: `{st_urea_bags}`.startsWith("{") ? 26 : Number(`{st_urea_bags}`),
+      dapBags: `{st_dap_bags}`.startsWith("{") ? 12 : Number(`{st_dap_bags}`),
+      seedType: `{st_seed_type}`.startsWith("{") ? 'Wheat' : `{st_seed_type}`,
+      waterSource: `{st_water_source}`.startsWith("{") ? 'Canal' : `{st_water_source}`,
+    };
+
+    const initialStreamlitState = { ...state };
+
+    // ================= MODEL =================
+    function nutrientResponse(applied, optimal) {
+      if (optimal <= 0) return 1;
+      const ratio = applied / optimal;
+      const gain = 1 - Math.exp(-1.6 * ratio);
+      const overPenalty = ratio > 1.4 ? (ratio - 1.4) * 0.08 : 0;
+      return Math.max(0.15, Math.min(1, gain - overPenalty));
+    }
+
+    function predictYield(input) {
+      // If Python pipeline runs and matches input parameters, deliver the core .pkl results
+      const isUnchanged =
+        input.district === initialStreamlitState.district &&
+        input.landSize === initialStreamlitState.landSize &&
+        input.ureaBags === initialStreamlitState.ureaBags &&
+        input.dapBags === initialStreamlitState.dapBags &&
+        input.seedType === initialStreamlitState.seedType &&
+        input.waterSource === initialStreamlitState.waterSource;
+
+      if (isUnchanged && !`{predicted_yield}`.startsWith("{")) {
+        return {
+          yieldPerAcre: Number(`{predicted_yield}`),
+          totalVolume: Number(`{total_volume}`),
+          confidence: Number(`{confidence}`),
+          nutrientBalance: 0.9,
+          limitingFactor: `{limiting_factor}`,
+          recommendation: `{recommendation}`,
+        };
+      }
+
+      const potential = CROP_POTENTIAL[input.seedType];
+      const districtF = DISTRICT_FACTOR[input.district];
+      const waterF = WATER_FACTOR[input.waterSource];
+
+      const ureaPerAcre = input.landSize > 0 ? input.ureaBags / input.landSize : 0;
+      const dapPerAcre = input.landSize > 0 ? input.dapBags / input.landSize : 0;
+
+      const nResp = nutrientResponse(ureaPerAcre, OPTIMAL_UREA[input.seedType]);
+      const pResp = nutrientResponse(dapPerAcre, OPTIMAL_DAP[input.seedType]);
+
+      const nutrient =
+        0.35 * Math.min(nResp, pResp) + 0.65 * ((nResp + pResp) / 2);
+
+      const yieldPerAcre = potential * districtF * waterF * nutrient;
+      const totalVolume = yieldPerAcre * input.landSize;
+
+      const confidence = Math.round(
+        Math.min(97, 55 + nutrient * 30 + (waterF - 0.78) * 40)
+      );
+
+      let limitingFactor = 'Balanced';
+      const scores = [
+        ['Nitrogen (Urea)', nResp],
+        ['Phosphorus (DAP)', pResp],
+        ['Water', waterF],
+      ];
+      scores.sort((a, b) => a[1] - b[1]);
+      if (scores[0][1] < 0.8) limitingFactor = scores[0][0];
+
+      const recommendation = buildRecommendation(
+        input,
+        limitingFactor,
+        ureaPerAcre,
+        dapPerAcre
+      );
+
+      return {
+        yieldPerAcre,
+        totalVolume,
+        confidence,
+        nutrientBalance: nutrient,
+        limitingFactor,
+        recommendation,
+      };
+    }
+
+    function buildRecommendation(input, limiting, ureaPerAcre, dapPerAcre) {
+      const optUrea = OPTIMAL_UREA[input.seedType];
+      const optDap = OPTIMAL_DAP[input.seedType];
+      const crop = input.seedType.toLowerCase();
+
+      if (limiting === 'Nitrogen (Urea)') {
+        const target = (optUrea * input.landSize).toFixed(1);
+        return `Your ${crop} crop is nitrogen-limited. Increase Urea toward ${target} bags total (~${optUrea} bags/acre), splitting the dose across the tillering and stem-elongation stages for maximum uptake.`;
+      }
+      if (limiting === 'Phosphorus (DAP)') {
+        const target = (optDap * input.landSize).toFixed(1);
+        return `Phosphorus is the bottleneck for your ${input.district} field. Apply ${target} DAP bags total (~${optDap} bags/acre) as a basal dose at sowing to strengthen root development and grain filling.`;
+      }
+      if (limiting === 'Water') {
+        return `Water reliability is capping your yield. Supplement ${input.waterSource.toLowerCase()} supply with a scheduled irrigation at the crown-root and flowering stages, and consider bed-furrow planting to cut losses in ${input.district}.`;
+      }
+      return `Excellent balance — your ${crop} field in ${input.district} is well-tuned at ${ureaPerAcre.toFixed(
+        1
+      )} Urea and ${dapPerAcre.toFixed(
+        1
+      )} DAP bags/acre. Maintain this regimen and monitor for late-season pest pressure to protect the forecasted harvest.`;
+    }
+
+    // ================= METER ANIMATION =================
+    const R = 141;
+    const CIRCUMFERENCE = 2 * Math.PI * R;
+    const ARC_FRACTION = 0.75;
+    const ARC_LENGTH = CIRCUMFERENCE * ARC_FRACTION;
+    const trackEl = document.getElementById('meterTrack');
+    const progressEl = document.getElementById('meterProgress');
+    trackEl.setAttribute('stroke-dasharray', `${ARC_LENGTH} ${CIRCUMFERENCE}`);
+
+    let animFrom = 0;
+    let rafId = null;
+
+    function animateMeter(targetValue, meterMax) {
+      cancelAnimationFrame(rafId);
+      const from = animFrom;
+      const start = performance.now();
+      const duration = 900;
+      const valueEl = document.getElementById('meterValue');
+
+      function tick(now) {
+        const t = Math.min(1, (now - start) / duration);
+        const eased = 1 - Math.pow(1 - t, 3);
+        const current = from + (targetValue - from) * eased;
+        const pct = Math.max(0, Math.min(1, current / meterMax));
+        progressEl.setAttribute(
+          'stroke-dasharray',
+          `${ARC_LENGTH * pct} ${CIRCUMFERENCE}`
+        );
+        valueEl.textContent = current.toFixed(1);
+        if (t < 1) {
+          rafId = requestAnimationFrame(tick);
+        } else {
+          animFrom = targetValue;
+        }
+      }
+      rafId = requestAnimationFrame(tick);
+    }
+
+    // ================= RENDER =================
+    function retrigger(el) {
+      el.classList.remove('animate-rise');
+      void el.offsetWidth;
+      el.classList.add('animate-rise');
+    }
+
+    function render() {
+      const profile = PROFILES[state.district];
+      const prediction = predictYield(state);
+      const meterMax = METER_MAX[state.seedType];
+
+      // sidebar profile
+      document.getElementById('profileStats').innerHTML = `
+          ${statChip('Soil Type', profile.soil)}
+          ${statChip('Avg Rainfall', profile.rainfall)}
+          ${statChip('Crop Season', profile.season)}
+          ${statChip('Fertility Index', profile.index + '/100')}
+        `;
+      document.getElementById('fertilityPct').textContent = profile.index + '%';
+      document.getElementById('fertilityBar').style.width = profile.index + '%';
+      document.getElementById('headerDistrict').textContent = state.district;
+
+      // meter + confidence
+      animateMeter(prediction.yieldPerAcre, meterMax);
+      document.getElementById('confidenceVal').textContent = prediction.confidence;
+
+      // volume block
+      const totalTons = (prediction.totalVolume * 0.0373).toFixed(1);
+      document.getElementById('totalVolume').textContent =
+        Math.round(prediction.totalVolume).toLocaleString();
+      document.getElementById('totalTons').textContent = totalTons;
+      document.getElementById('perAcre').textContent =
+        prediction.yieldPerAcre.toFixed(1);
+      document.getElementById('cultivated').textContent = state.landSize;
+      retrigger(document.getElementById('volumeBlock'));
+
+      // recommendation
+      document.getElementById('recommendationText').textContent =
+        prediction.recommendation;
+      document.getElementById('focusBadgeText').textContent =
+        prediction.limitingFactor === 'Balanced'
+          ? 'Optimized'
+          : 'Focus: ' + prediction.limitingFactor;
+      retrigger(document.getElementById('recommendationCard'));
+    }
+
+    function statChip(label, value) {
+      return `
+          <div class="glass-strong rounded-xl p-3">
+            <p class="text-[11px] uppercase tracking-wide text-muted-foreground">${label}</p>
+            <p class="mt-1 text-sm font-semibold text-foreground">${value}</p>
+          </div>`;
+    }
+
+    // ================= EVENTS =================
+    function bindSlider(id, key) {
+      const el = document.getElementById(id);
+      const valEl = document.getElementById(id + 'Val');
+      el.addEventListener('input', () => {
+        state[key] = Number(el.value);
+        valEl.textContent = el.value;
+        render();
+      });
+    }
+    bindSlider('landSize', 'landSize');
+    bindSlider('ureaBags', 'ureaBags');
+    bindSlider('dapBags', 'dapBags');
+
+    document.getElementById('district').addEventListener('change', (e) => {
+      state.district = e.target.value;
+      render();
+    });
+    document.getElementById('seedType').addEventListener('change', (e) => {
+      state.seedType = e.target.value;
+      render();
+    });
+    document.getElementById('waterSource').addEventListener('change', (e) => {
+      state.waterSource = e.target.value;
+      render();
+    });
+
+    // Match input values on immediate window load context mapping
+    function initInputs() {
+      document.getElementById('landSize').value = state.landSize;
+      document.getElementById('landSizeVal').textContent = state.landSize;
+      document.getElementById('ureaBags').value = state.ureaBags;
+      document.getElementById('ureaBagsVal').textContent = state.ureaBags;
+      document.getElementById('dapBags').value = state.dapBags;
+      document.getElementById('dapBagsVal').textContent = state.dapBags;
+      document.getElementById('district').value = state.district;
+      document.getElementById('seedType').value = state.seedType;
+      document.getElementById('waterSource').value = state.waterSource;
+    }
+
+    // initial paint setup
+    initInputs();
+    render();
+  </script>
+</body>
+
+</html>
