@@ -2,3 +2,5 @@ streamlit
 joblib
 requests
 scikit-learn
+fastapi
+uvicorn
